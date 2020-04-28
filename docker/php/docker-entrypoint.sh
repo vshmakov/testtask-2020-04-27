@@ -1,4 +1,3 @@
 #!/bin/sh
-composer install
-vendor/bin/doctrine-migrations migrations:migrate -n
+composer dump-autoload
 php-fpm
