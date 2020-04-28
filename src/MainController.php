@@ -25,6 +25,11 @@ final class MainController
                 return [$this, 'login'];
 
                 break;
+
+            default:
+                return [$this, 'notFound'];
+
+                break;
         }
     }
 
@@ -39,11 +44,49 @@ final class MainController
 
     public function login(): void
     {
-        echo 'login';
+        if ($this->isPostHttpMethod()) {
+            //some csrf protection here
+            $username = $_POST['username'] ?? null;
+            $password = $_POST['password'] ?? null;
+
+            if (null !== $username && null !== $password) {
+                $this->securityManager->authenticate($username);
+                $this->redirect('/');
+
+                return;
+            }
+        }
+
+        $this->render('login.php', [
+            'title' => 'Login to site',
+            'username' => $username ?? 'admin',
+            'password' => $password ?? 123,
+        ]);
+    }
+
+    public function notFound(): void
+    {
+        $this->render('notFound.php', [
+            'title' => '404. Page not found',
+        ]);
     }
 
     private function redirect(string $route): void
     {
         header("location: $route");
+    }
+
+    private function render(string $template, array $parameters): void
+    {
+        extract($parameters);
+
+        foreach (['header.php', $template, 'footer.php'] as $part) {
+            require_once sprintf('%s/templates/%s', PROJECT_DIRECTORY, $part);
+        }
+    }
+
+    private function isPostHttpMethod(): bool
+    {
+        return 'POST' === $_SERVER['REQUEST_METHOD'];
     }
 }
