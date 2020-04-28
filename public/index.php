@@ -1,8 +1,12 @@
 <?php
 
-require_once(__dir__ . '/../vendor/autoload.php');
+declare(strict_types=1);
+
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\MainController;
 
-$controller = new MainController();
-$controller->homepage();
+$securityManager = new \App\SecurityManager();
+$controller = new MainController($securityManager);
+$handler = $controller->getHandler($_SERVER['REQUEST_URI']);
+$handler();
