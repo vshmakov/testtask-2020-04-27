@@ -12,6 +12,10 @@ services:
       - php
   php:
     build: ./docker/php
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - .:/var/www
     ports:
@@ -29,6 +33,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./docker/db/init:/docker-entrypoint-initdb.d # Place init .sql OR .sql.gz files here.
+    ports:
+      - "3306:3306"
   phpmyadmin:
     depends_on:
       - db

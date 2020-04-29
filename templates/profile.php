@@ -2,12 +2,17 @@
     <table>
         <tr>
             <th>Account amount</th>
-            <td><?= $amount ?></td>
+            <td><?= $amount ?>$</td>
         </tr>
         <tr>
             <th>Withdraw</th>
             <td>
                 <form method="post">
+                    <ul>
+                        <?php foreach ($errors as $error): ?>
+<li><?= $error ?></li>
+                        <?php endforeach ?>
+                    </ul>
                     <div>
                         <input
                                 type="number"

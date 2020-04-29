@@ -9,6 +9,7 @@ RUN apt-get install -y \
 
 #install php extensions
 RUN docker-php-ext-install \
+    mysqli \
     pdo_mysql
 
 #install composer

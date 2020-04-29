@@ -8,9 +8,12 @@ final class MainController
 {
     private SecurityManager $securityManager;
 
-    public function __construct(SecurityManager $securityManager)
+    private UserRepository $userRepository;
+
+    public function __construct(SecurityManager $securityManager, UserRepository $userRepository)
     {
         $this->securityManager = $securityManager;
+        $this->userRepository = $userRepository;
     }
 
     public function getHandler(string $route): callable
@@ -18,17 +21,18 @@ final class MainController
         switch ($route) {
             case  '/':
                 return [$this, 'profile'];
-
                 break;
 
             case  '/login':
                 return [$this, 'login'];
+                break;
 
+            case  '/logout':
+                return [$this, 'logout'];
                 break;
 
             default:
                 return [$this, 'notFound'];
-
                 break;
         }
     }
@@ -41,13 +45,26 @@ final class MainController
             return;
         }
 
+        $username = $this->securityManager->getUsername();
+        $amount = $this->userRepository->getAmount($username);
+        $errors = [];
         $withdraw = 0;
 
         if ($this->isPostHttpMethod()) {
+            //some csrf protection here
             $floatWithdraw = (float) ($_POST['withdraw'] ?? '0');
             $withdraw = (int) ($floatWithdraw * 100);
 
-            if (0 < $withdraw) {
+            if (0 >= $withdraw) {
+                $errors[] = 'Withdraw is not valid';
+            }
+
+            if ($amount < $withdraw) {
+                $errors[] = 'Withdraw must not be greater than account amount';
+            }
+
+            if (empty($errors)) {
+                $this->userRepository->withdraw($username, $withdraw);
                 $this->redirect('/');
 
                 return;
@@ -56,9 +73,16 @@ final class MainController
 
         $this->render('profile.php', [
             'title' => 'Your profile',
-            'amount' => 5000,
-            'withdraw' => $withdraw,
+            'errors' => $errors,
+            'amount' => $amount / 100,
+            'withdraw' => $withdraw / 100,
         ]);
+    }
+
+    public function logout(): void
+    {
+        $this->securityManager->unauthenticate();
+        $this->redirect('/');
     }
 
     public function login(): void
@@ -68,7 +92,11 @@ final class MainController
             $username = $_POST['username'] ?? null;
             $password = $_POST['password'] ?? null;
 
-            if (null !== $username && null !== $password) {
+            if (
+                null !== $username
+                && null !== $password
+                && $this->userRepository->userExists($username, $this->hashPassword($password))
+            ) {
                 $this->securityManager->authenticate($username);
                 $this->redirect('/');
 
@@ -108,5 +136,10 @@ final class MainController
     private function isPostHttpMethod(): bool
     {
         return 'POST' === $_SERVER['REQUEST_METHOD'];
+    }
+
+    private function hashPassword(string $password): string
+    {
+        return  crypt($password, 'some_salt');
     }
 }

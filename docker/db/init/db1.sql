@@ -46,7 +46,7 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`) USING BTREE,
   ADD UNIQUE KEY `username` (`username`);
 
-  INSERT  INTO `users` (id, username, password, amount) VALUES(1, "admin", "123", 9999);
+  INSERT  INTO `users` (id, username, password, amount) VALUES(1, "admin", "soQbW5Z0L3Vak", 9999);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
