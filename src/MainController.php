@@ -39,13 +39,14 @@ final class MainController
 
     public function profile(): void
     {
-        if (!$this->securityManager->isUserAuthenticated()) {
+        $username = $this->securityManager->getUsername();
+
+        if (null === $username) {
             $this->redirect('/login');
 
             return;
         }
 
-        $username = $this->securityManager->getUsername();
         $amount = $this->userRepository->getAmount($username);
         $errors = [];
         $withdraw = 0;
@@ -140,6 +141,6 @@ final class MainController
 
     private function hashPassword(string $password): string
     {
-        return  crypt($password, 'some_salt');
+        return crypt($password, 'some_salt');
     }
 }
