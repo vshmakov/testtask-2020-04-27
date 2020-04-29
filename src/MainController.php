@@ -40,6 +40,25 @@ final class MainController
 
             return;
         }
+
+        $withdraw = 0;
+
+        if ($this->isPostHttpMethod()) {
+            $floatWithdraw = (float) ($_POST['withdraw'] ?? '0');
+            $withdraw = (int) ($floatWithdraw * 100);
+
+            if (0 < $withdraw) {
+                $this->redirect('/');
+
+                return;
+            }
+        }
+
+        $this->render('profile.php', [
+            'title' => 'Your profile',
+            'amount' => 5000,
+            'withdraw' => $withdraw,
+        ]);
     }
 
     public function login(): void
@@ -66,6 +85,7 @@ final class MainController
 
     public function notFound(): void
     {
+        http_response_code(404);
         $this->render('notFound.php', [
             'title' => '404. Page not found',
         ]);

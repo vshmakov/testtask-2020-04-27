@@ -10,6 +10,8 @@ final class SecurityManager
 
     public function isUserAuthenticated(): bool
     {
+        session_start();
+
         return \array_key_exists(self::USER_KEY, $_SESSION ?? []);
     }
 
